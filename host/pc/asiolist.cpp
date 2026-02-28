@@ -67,19 +67,19 @@ static LONG findDrvPath (char *clsidstr,char *dllpath,int dllpathsize)
 	HFILE			hfile;
 	BOOL			found = FALSE;
 
-	CharLowerBuff(clsidstr,strlen(clsidstr));
-	if ((cr = RegOpenKey(HKEY_CLASSES_ROOT,COM_CLSID,&hkEnum)) == ERROR_SUCCESS) {
+	CharLowerBuffA(clsidstr,strlen(clsidstr));
+	if ((cr = RegOpenKeyA(HKEY_CLASSES_ROOT,COM_CLSID,&hkEnum)) == ERROR_SUCCESS) {
 
 		index = 0;
 		while (cr == ERROR_SUCCESS && !found) {
 			cr = RegEnumKey(hkEnum,index++,(LPTSTR)databuf,512);
 			if (cr == ERROR_SUCCESS) {
-				CharLowerBuff(databuf,strlen(databuf));
+				CharLowerBuffA(databuf,strlen(databuf));
 				if (!(strcmp(databuf,clsidstr))) {
 					if ((cr = RegOpenKeyEx(hkEnum,(LPCTSTR)databuf,0,KEY_READ,&hksub)) == ERROR_SUCCESS) {
 						if ((cr = RegOpenKeyEx(hksub,(LPCTSTR)INPROC_SERVER,0,KEY_READ,&hkpath)) == ERROR_SUCCESS) {
 							datatype = REG_SZ; datasize = (DWORD)dllpathsize;
-							cr = RegQueryValueEx(hkpath,0,0,&datatype,(LPBYTE)dllpath,&datasize);
+							cr = RegQueryValueExA(hkpath,0,0,&datatype,(LPBYTE)dllpath,&datasize);
 							if (cr == ERROR_SUCCESS) {
 								memset(&ofs,0,sizeof(OFSTRUCT));
 								ofs.cBytes = sizeof(OFSTRUCT); 
@@ -114,7 +114,7 @@ static LPASIODRVSTRUCT newDrvStruct (HKEY hkey,char *keyname,int drvID,LPASIODRV
 		if ((cr = RegOpenKeyEx(hkey,(LPCTSTR)keyname,0,KEY_READ,&hksub)) == ERROR_SUCCESS) {
 
 			datatype = REG_SZ; datasize = 256;
-			cr = RegQueryValueEx(hksub,COM_CLSID,0,&datatype,(LPBYTE)databuf,&datasize);
+			cr = RegQueryValueExA(hksub,COM_CLSID,0,&datatype,(LPBYTE)databuf,&datasize);
 			if (cr == ERROR_SUCCESS) {
 				rc = findDrvPath (databuf,dllpath,MAXPATHLEN);
 				if (rc == 0) {
@@ -128,7 +128,7 @@ static LPASIODRVSTRUCT newDrvStruct (HKEY hkey,char *keyname,int drvID,LPASIODRV
 						}
 
 						datatype = REG_SZ; datasize = 256;
-						cr = RegQueryValueEx(hksub,ASIODRV_DESC,0,&datatype,(LPBYTE)databuf,&datasize);
+						cr = RegQueryValueExA(hksub,ASIODRV_DESC,0,&datatype,(LPBYTE)databuf,&datasize);
 						if (cr == ERROR_SUCCESS) {
 							strcpy(lpdrv->drvname,databuf);
 						}
@@ -185,7 +185,7 @@ AsioDriverList::AsioDriverList ()
 	numdrv		= 0;
 	lpdrvlist	= 0;
 
-	cr = RegOpenKey(HKEY_LOCAL_MACHINE,ASIO_PATH,&hkEnum);
+	cr = RegOpenKeyA(HKEY_LOCAL_MACHINE,ASIO_PATH,&hkEnum);
 	while (cr == ERROR_SUCCESS) {
 		if ((cr = RegEnumKey(hkEnum,index++,(LPTSTR)keyname,MAXDRVNAMELEN))== ERROR_SUCCESS) {
 			lpdrvlist = newDrvStruct (hkEnum,keyname,0,lpdrvlist);

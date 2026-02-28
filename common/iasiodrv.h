@@ -13,7 +13,9 @@
 // No part of the SDK, including this file, may be copied, modified, propagated,
 // or distributed except according to the terms contained in the LICENSE file.
 //-----------------------------------------------------------------------------
-
+#pragma once
+#include "windows.h"
+#include "unknwn.h"
 #include "asiosys.h"
 #include "asio.h"
 
